@@ -1,0 +1,108 @@
+---
+title: "Visualisation Assignment"
+author: "Mafruz Nissar Rahman"
+date: "2026-02-02"
+output: pdf_document
+---
+
+## set environment
+
+```{r message = FALSE, warning = FALSE}
+
+# Set rendering parameters
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+
+
+library(tinytex)
+library(readxl)
+library(tidyverse)
+
+
+```
+
+## loading the sheets
+```{r loading_the_file}
+sheet = "D:/BRSM/visualisation assignment/BRSM_Visualisation_Assignment.xlsx"
+deception_data <- read_excel(sheet, sheet = 1)
+mov_per <- read_excel(sheet, sheet = 2)
+glass_glimpse <- read_excel(sheet, sheet = 3)
+musuem_visitors <- read_excel(sheet, sheet = 4)
+fast_furious <- read_excel(sheet, sheet = 5)
+
+```
+
+## question 1
+```{r question_1}
+head(deception_data)
+
+
+#hist(deception_data$x1)
+#hist(deception_data$x2)
+#hist(deception_data$x3)
+#hist(deception_data$x4)
+
+par(mfrow = c(2, 2))
+hist(deception_data$x1, main = "Histogram of x1", xlab = "Value", col = "skyblue")
+hist(deception_data$x2, main = "Histogram of x2", xlab = "Value", col = "skyblue")
+hist(deception_data$x3, main = "Histogram of x3", xlab = "Value", col = "skyblue")
+hist(deception_data$x4, main = "Histogram of x4", xlab = "Value", col = "skyblue")
+par(mfrow = c(1, 1))
+
+
+summary(deception_data)
+
+#boxplot(deception_data$x1)
+#boxplot(deception_data$x2)
+#boxplot(deception_data$x3)
+#boxplot(deception_data$x4) 
+boxplot(deception_data, 
+        main = "Misleading Boxplots (They look identical)", 
+        xlab = "Group", 
+        ylab = "Value", 
+        col = "blue")
+
+deception_long <- deception_data %>%
+  pivot_longer(
+    cols = c(x1, x2, x3 , x4), 
+    names_to = "x_val",      
+    values_to = "values"      
+  )
+
+deception_long %>% ggplot( aes(x = x_val , y = values ) )+
+  geom_violin(fill = "blue") + 
+  geom_boxplot(width = 0.1, fill = "white") +
+  labs(
+    title = "Distribution of Groups x1-x4",
+    subtitle = "Violin plot revealing underlying data structure",
+    x = "Group",
+    y = "Value"
+  ) +
+  theme_minimal()
+
+# So , when I initially plotted the histograms , I could see how different the
+# distribution was . I was the summary function to see the mean , median , min,
+# max value , that's when I saw that they were the same for each of the groups. 
+# So, that would mean that if a drew a boxplot , it would be the same for each 
+# group and so was the case . Finally , I plotted the violin + boxplot to show 
+# how different the distribution were with the same box plots. This is what I 
+# think was the deception . I pivoted the dataframe (sheet) longer for 
+# flexibility while plotting using ggplot() functions . I have Adam Dede's 
+# udemy course on statistics using R , where they use similar strategies for 
+# plotting data. 
+
+
+```
+
+## question 2
+```{r question_2}
+
+```
+
+## question 3
+```{r question_3}
+```
+
+## question 4
+```{r question_4}
+```
