@@ -87,22 +87,172 @@ deception_long %>% ggplot( aes(x = x_val , y = values ) )+
 # group and so was the case . Finally , I plotted the violin + boxplot to show 
 # how different the distribution were with the same box plots. This is what I 
 # think was the deception . I pivoted the dataframe (sheet) longer for 
-# flexibility while plotting using ggplot() functions . I have Adam Dede's 
-# udemy course on statistics using R , where they use similar strategies for 
-# plotting data. 
-
+# flexibility while plotting using ggplot() functions .
 
 ```
 
 ## question 2
 ```{r question_2}
 
+mov_long <- mov_per %>%
+  pivot_longer(
+    cols = -Movements,          # pivoting everything else other than Movement
+    names_to = "Personality",   
+    values_to = "Importance"    
+  )
+
+mov_long %>% ggplot(aes(x = Movements , y = Importance , fill = Personality)) + 
+          geom_col(position = position_dodge()) + 
+  labs(
+    title = "Joint Importance by Personality",
+    x = "Joints",
+    y = "Importance"
+  ) +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+#numeric_data = mov_per[,-1]
+#mov_matrix = as.matrix(numeric_data)
+#row.names(mov_matrix) = mov_per$Movements
+
+#heatmap(mov_matrix, 
+ #       Rowv = NA, Colv = NA,       
+  #      col = heat.colors(256),     
+   #     scale = "none",            
+    #    margins = c(10, 5),        
+     #   main = "Simple Heatmap (Base R)"
+#)  very ugly results
+mov_long %>% ggplot(aes(x = Movements, y = Personality, fill = Importance)) +
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "white",high = "red",mid= "yellow",
+                       midpoint = 0.5) +
+  theme_minimal()+
+  coord_fixed()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(
+    title = "Joint Importance by Personality"
+  )
+
+# As mentioned in the lecture slides , heatmaps are the preferred plots for 
+# depicting correlation or relationships . Initially I plotted the grouped 
+# bar charts (which is the inferior plotting technique in this case ).One can 
+# infer why one is visually superior than the other .The bar plots were very 
+# cluttered since it was a huge data . 
 ```
 
 ## question 3
-```{r question_3}
+```{r question_3.1}
+ zombie_data <- data.frame(
+  Location = c(rep("Safe Zone", 4), rep("Contaminated City", 4), 
+               rep("Rural Area", 4), rep("Isolated Island", 4)),
+               
+  Gender = rep(c("Male", "Male", "Female", "Female"), 4),
+  
+  Outcome = rep(c("Zombie", "Survived"), 8),
+  
+  Count = c(118, 62, 4, 141,   # Safe Zone
+            154, 25, 13, 93,   # Contaminated City
+            422, 88, 106, 90,  # Rural Area
+            670, 192, 3, 20)   # Isolated Island
+)
+zombie_data %>%
+  ggplot(aes(x = Location, y = Count, fill = Outcome)) +
+  
+  
+  geom_col(position = "fill") + 
+  facet_wrap(~ Gender) + 
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "black") +
+  labs(
+    title = "Survival Chances by Location and Gender",
+    subtitle = "Proportion of Survivors vs. Zombies",
+    x = "Location",
+    y = "Proportion (Survival Chance)",
+    fill = "Outcome"
+  ) +
+  
+  theme_minimal() +
+  scale_fill_manual(values = c("Zombie" = "red", "Survived" = "green")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate text
+# Looking at the raw numbers , the disparity between the proportions of male 
+# and females turning to zombies could be seen . So , distinguished them on the 
+# basis of gender . I used geom_col(position = "fill") as it gives the 
+# percentages( probabilities ) rather than just raw numbers . This shows us 
+# which area and gender had the highest survival chances.
 ```
+```{r question_3.2}
+glass_data = glass_glimpse %>% select(Type,RI) %>% 
+  mutate(Type = as.factor(Type))
 
+glass_data %>% ggplot(aes(x = Type , y = RI , fill = Type)) + 
+  
+  geom_boxplot(alpha = 0.7) +
+  geom_jitter(width = 0.2, size = 1.5, alpha = 0.6)+
+  #geom_violin(alpha = 0.5)+
+  labs(
+    title = "RI by Glass Type",
+    x = "Type",
+    y = "RI"
+  ) +
+  theme_minimal()+
+  scale_x_discrete(labels = c(
+    "1" = "Building Float", 
+    "2" = "Building Non-Float", 
+    "3" = "Vehicle Float", 
+    "5" = "Containers", 
+    "6" = "Tableware", 
+    "7" = "Headlamps"
+  ))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# I chose a box plot overlaid by a jitter plot to get the idea of the median ,
+# IQR of the distribution of the different types and some of the types had 
+# a low sample data so I used the jitter plot instead of a violin plot . 
+# The RI is not a great indicator for the types , as they all lie in very simil-
+# -ar ranges .Type 2 shows a wide range of values, Type 5 has the highest median and
+# Type 7 has the lowest median . 
+
+
+```
+```{r question_3.3}
+
+
+ museum_long <- musuem_visitors %>%
+  pivot_longer(
+    cols = -Month,
+    names_to = "Museum",
+    values_to = "Visitors"
+  ) %>%
+  mutate(Date = my(Month))
+
+
+museum_long %>%
+  ggplot(aes(x = Date, y = Visitors)) +
+  
+ 
+  geom_line(color = "black", alpha = 1) +
+
+  facet_wrap(~ Museum, ncol = 1, scales = "free_y") + 
+  
+  labs(
+    title = "Museum Visitor Trends (2014-2023)",
+    subtitle = "Grey lines = Monthly Data | Blue lines = Overall Trend",
+    x = "Year",
+    y = "Visitors"
+  ) +
+  theme_minimal()
+
+# A line plot is mostly used for time-series data . For the inferences , the 
+# count of visitors have decreased in the recent years for each of the Museum. 
+# The Firehouse Museum only had a peak at the fall of 2014 , other wise wasn't 
+# that visited anyway . For the other Museums , we could see occasional peaks 
+# which generally indicates the vacation or educational seasons of visiting 
+# museums . But the general trend across the years is that of a decreasing one 
+# particularly after the onset of 2020 (covid outbreak).
+```
 ## question 4
 ```{r question_4}
+
 ```
